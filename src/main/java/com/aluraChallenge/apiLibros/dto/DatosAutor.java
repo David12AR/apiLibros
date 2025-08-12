@@ -1,13 +1,12 @@
-package com.aluraChallenge.apiLibros.model;
+package com.aluraChallenge.apiLibros.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-
-public record DatosAutoresAd(
-        @JsonAlias("name") String autor,
-        @JsonAlias("birth_year") String fechaNacimiento,
+public record DatosAutor(
+        @JsonAlias("name") String nombre,
+        @JsonAlias("birth_year")String fechaNacimiento,
         @JsonAlias("death_year")String fechaFallecimiento
 ) {
 }

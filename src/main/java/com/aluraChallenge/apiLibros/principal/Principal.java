@@ -1,29 +1,41 @@
 package com.aluraChallenge.apiLibros.principal;
 
-import com.aluraChallenge.apiLibros.model.DatosLibro;
+import com.aluraChallenge.apiLibros.dto.DatosAutor;
+import com.aluraChallenge.apiLibros.dto.DatosLibro;
+import com.aluraChallenge.apiLibros.dto.DatosResultado;
+import com.aluraChallenge.apiLibros.model.Autor;
 import com.aluraChallenge.apiLibros.model.Libro;
+import com.aluraChallenge.apiLibros.repository.AutorRepository;
 import com.aluraChallenge.apiLibros.repository.LibroRepository;
 import com.aluraChallenge.apiLibros.service.ConsumoAPI;
 import com.aluraChallenge.apiLibros.service.ConvierteDatos;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+
+
 public class Principal {
+    @Autowired
+    private final LibroRepository libroRepository;
+
+    @Autowired
+    private final AutorRepository autorRepository;
+
     private Scanner teclado = new Scanner(System.in);
     private ConsumoAPI consumoApi = new ConsumoAPI();
-    private final String URL_BASE = "https://gutendex.com/books";
+    private final String URL_BASE = "https://gutendex.com/books/";
     private ConvierteDatos conversor = new ConvierteDatos();
-    private List<DatosLibro> datosLibros = new ArrayList<>();
-    private List<Libro> libros;
-    private LibroRepository repositorio;
-    private Optional<Libro> libroBuscado;
+    private String json;
 
-    public Principal (LibroRepository repository) {
-        this.repositorio = repository;
-    }
+public Principal(LibroRepository libroRepository, AutorRepository autorRepository){
+    this.autorRepository = autorRepository;
+    this.libroRepository = libroRepository;
+}
+
 
     public void muestraElMenu() {
         var opcion = -1;
@@ -60,17 +72,41 @@ public class Principal {
         System.out.println("Por favor escriba el nombre de la serie que desea buscar:");
 
         var nombreLibro = teclado.nextLine();
-        var json = consumoApi.obtenerDatos(URL_BASE + nombreLibro.replace(" ", "+"));
+        var json = consumoApi.obtenerDatos(URL_BASE + "?search="+ nombreLibro.replace(" ", "+"));
         System.out.println(json);
-        DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
-        return datos;
+        DatosResultado datos = conversor.obtenerDatos(json, DatosResultado.class);
+        Optional<DatosLibro> libroBuscado = datos.resultados().stream()
+                .filter(Libro -> Libro.titulo().toUpperCase().contains(nombreLibro.toUpperCase()))
+                .findFirst();
+        if (libroBuscado.isPresent()){
+            return libroBuscado.get();
+
+        }else
+            return null;
     }
 
     private void buscarlibroPorTitulo() {
         DatosLibro datos = getDatosLibro();
-        Libro libro = new Libro(datos);
-        repositorio.save(libro);
-//        datosSeries.add(datos);
-        System.out.println(datos);
+        if(datos != null) {
+            Libro libro;
+            DatosAutor datosAutor = datos.autor().get(0);
+            Autor autorExistente = autorRepository.findByNombre(datosAutor.nombre());
+            if (autorExistente != null) {
+                libro = new Libro(datos, autorExistente);
+            } else {
+                Autor nuevoAutor = new Autor(datosAutor);
+                libro = new Libro(datos, nuevoAutor);
+                autorRepository.save(nuevoAutor);
+            }
+            try {
+                libroRepository.save(libro);
+                System.out.println(libro);
+            } catch (Exception e) {
+                System.out.println("No se puede registrar un libro más de una vez");
+            }
+        }else{
+            System.out.println("El libro no se encuentra en la API");
+
+        }
         }
     }

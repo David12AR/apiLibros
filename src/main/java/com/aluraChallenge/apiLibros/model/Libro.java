@@ -1,34 +1,35 @@
 package com.aluraChallenge.apiLibros.model;
 
 //import com.aluracursos.screenmatch.service.ConsultaChatGPT;
+import com.aluraChallenge.apiLibros.dto.DatosLibro;
 import jakarta.persistence.*;
-
-import java.util.List;
-import java.util.OptionalDouble;
 
 @Entity
 @Table(name = "libros")
 
 
 public class Libro {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
     @Column(unique = true)
     private String titulo;
-    private List<DatosAutores> autores;
-    private String idiomas;
+
+    @ManyToOne
+    private Autor autor;
+    private String idioma;
     private Double numeroDeDescargas;
 
 
 
     public Libro(){}
-    public Libro(DatosLibro datosLibro){
-        this.titulo = datosLibro.titulo();
-        this.autores = datosLibro.autores();
-        this.idiomas = datosLibro.idiomas();
-        this.numeroDeDescargas = OptionalDouble.of(Double.valueOf(datosLibro.numeroDeDescargas())).orElse(0);
+    public Libro(DatosLibro datos, Autor autor){
+        this.titulo = datos.titulo();
+        this.autor = autor;
+        this.idioma = datos.idioma().get(0);
+        this.numeroDeDescargas = datos.numeroDeDescargas();
 
     }
 
@@ -36,8 +37,8 @@ public class Libro {
     public String toString() {
         return
                 "Título=" + titulo +
-                ", Autor='" + autores + '\'' +
-                ", Idioma=" + idiomas +
+                        ", Autor" + autor +
+                ", Idioma=" + idioma +
                 ", Numero de descargas=" + numeroDeDescargas + '\'';
 
     }
@@ -58,20 +59,20 @@ public class Libro {
         this.titulo = titulo;
     }
 
-    public List<DatosAutores> getAutores() {
-        return autores;
+    public Autor getAutor() {
+        return autor;
     }
 
-    public void setAutores(List<DatosAutores> autores) {
-        this.autores = autores;
+    public void setAutor(Autor autor) {
+        this.autor = autor;
     }
 
-    public String getIdiomas() {
-        return idiomas;
+    public String getIdioma() {
+        return idioma;
     }
 
-    public void setIdiomas(String idiomas) {
-        this.idiomas = idiomas;
+    public void setIdioma(String idioma) {
+        this.idioma = idioma;
     }
 
     public Double getNumeroDeDescargas() {
