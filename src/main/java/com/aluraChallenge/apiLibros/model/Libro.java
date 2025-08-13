@@ -37,9 +37,9 @@ public class Libro {
     public String toString() {
         return
                 "Título=" + titulo +
-                        ", Autor" + autor +
-                ", Idioma=" + idioma +
-                ", Numero de descargas=" + numeroDeDescargas + '\'';
+                        ", Autor" + (autor != null ? autor.getNombre() : "Desconocido") +
+                        ", Idioma=" + idioma +
+                        ", Numero de descargas=" + numeroDeDescargas + '\'';
 
     }
 

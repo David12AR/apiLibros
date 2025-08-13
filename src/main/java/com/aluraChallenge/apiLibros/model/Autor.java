@@ -20,9 +20,10 @@ public class Autor {
 
     private Integer fechaFallecimiento;
 
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Libro> libros = new ArrayList();
 
+    public Autor(){}
     public Autor(DatosAutor datosAutor) {
         this.nombre = datosAutor.nombre();
         this.fechaNacimiento = datosAutor.fechaNacimiento() != null && !datosAutor.fechaNacimiento().isEmpty()
