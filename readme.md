@@ -120,7 +120,7 @@ El usuario puede:
 8. **Cerrar aplicación**
    -Cierra la aplicación con la ultima opción.
    
-   <img src="https://github.com/David12AR/apiLibros/blob/main/imagenes/opcion-cero.JPG?raw=true" width="500">
+     <img src="https://github.com/David12AR/apiLibros/blob/main/imagenes/opcion-cero.JPG?raw=true" width="500">
    
 ---
 
