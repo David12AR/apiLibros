@@ -65,7 +65,7 @@ El usuario puede:
 2. **Buscar libro por título**  
    - Ingresa el nombre completo o parcial del libro.
      
-     <img src="https://github.com/David12AR/apiLibros/blob/main/imagenes/primera-opcion.JPG?raw=true" width="500">
+     
      
    - El sistema lo busca en la API y lo guarda en la BD.  
    - Soporta mayúsculas y minúsculas.
