@@ -68,7 +68,7 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
                     listarLibroPorIdioma();
                     break;
                 case 0:
-                    System.out.println("Cerrando la aplicación");
+                    System.out.println("Gracias por utilizar el programa de libros, cerrando programa");
                     break;
                 default:
                     System.out.println("Opción inválida");
@@ -86,27 +86,53 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
                 fr - Frances
                 it - Italiano
                 """);
-        var idioma = teclado.nextLine();
-        List<Libro> libroPorIdioma = libroRepository.findByIdioma(idioma);
-        System.out.println("Los libros del idioma: "+ idioma);
-        libroPorIdioma.forEach(libro -> {
-            System.out.println("-------------------LIBRO---------------------");
-            System.out.println("TÍTULO: " + libro.getTitulo());
-            System.out.println("AUTOR: " +
-                    (libro.getAutor() != null ? libro.getAutor().getNombre() : "Desconocido"));
-            System.out.println("IDIOMA: " + libro.getIdioma());
-            System.out.println("NÚMERO DE DESCARGAS: " + libro.getNumeroDeDescargas());
-            System.out.println("----------------------------------------");
-        });
-    }
+        var idioma = teclado.nextLine().trim();
+
+        if (!idioma.matches("[a-zA-Z]+")) {
+            System.out.println("Por favor ingresar solo texto sin números.");
+            return;
+        }
+
+        try {
+            List<Libro> libroPorIdioma = libroRepository.findByIdiomaIgnoreCase(idioma);
+            if (libroPorIdioma.isEmpty()) {
+                System.out.println("No se encontraron libros en ese idioma " + libroPorIdioma);
+                return;
+            }
+
+
+            System.out.println("---------LOS LIBROS EN EL IDIOMA: " + idioma + "---------");
+            libroPorIdioma.forEach(libro -> {
+                System.out.println("-------------------LIBRO---------------------");
+                System.out.println("TÍTULO: " + libro.getTitulo());
+                System.out.println("AUTOR: " +
+                        (libro.getAutor() != null ? libro.getAutor().getNombre() : "Desconocido"));
+                System.out.println("IDIOMA: " + libro.getIdioma());
+                System.out.println("NÚMERO DE DESCARGAS: " + libro.getNumeroDeDescargas());
+                System.out.println("---------------------------------------------");
+            });
+        } catch (Exception e) {
+            System.out.println("Se produjo un error al buscar el libro."+ e.getMessage());
+        }
+        }
 
 
     private void listarAutoresVivosDeterminadoTiempo() {
         System.out.println("Por favor escriba el año que desea validar si el autor estaba vivo:");
-        var vidaTiempo = teclado.nextInt();
-        List<Autor> filtroSeries = autorRepository.listaAutoresPorVivos(vidaTiempo);
-        System.out.println("Autores vivos en dicho año");
-        filtroSeries.forEach(autor -> {
+        String vidaTiempo = teclado.nextLine().trim();
+
+        try {
+            int vidaTiempo1 = Integer.parseInt(vidaTiempo);
+            List<Autor> autoresVivos = autorRepository.listaAutoresPorVivos(vidaTiempo1);
+
+            if (autoresVivos.isEmpty()) {
+                System.out.println("No se encontraron autores vivos en el año " + vidaTiempo);
+                return;
+            }
+
+
+        System.out.println    ("------------AUTORES VIVOS EN "+ vidaTiempo1+"------------");
+        autoresVivos.forEach(autor -> {
             System.out.println("-------------------AUTOR---------------------");
             System.out.println("AUTOR: " + autor.getNombre());
             System.out.println("FECHA DE NACIMIENTO: " + autor.getFechaNacimiento());
@@ -115,8 +141,12 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
                     .stream()
                     .map(Libro::getTitulo)
                     .collect(Collectors.joining(", ")));
-            System.out.println("----------------------------------------");
+            System.out.println("---------------------------------------------");
         });
+
+        } catch (NumberFormatException e) {
+            System.out.println("Entrada inválida. Debe ingresar un año numérico.");
+        }
     }
 
     private void listarAutoresRegistrados() {
@@ -126,8 +156,7 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
             System.out.println("No hay autores registrados.");
             return;
         }
-        System.out.println("------------AUTORES REGISTRADOS----------");
-        System.out.println("----------------------------------------");
+        System.out.println    ("--------------AUTORES REGISTRADOS------------");
 
         autores.stream().forEach(autor -> {
             System.out.println("-------------------AUTOR---------------------");
@@ -138,7 +167,7 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
                     .stream()
                     .map(Libro::getTitulo)
                     .collect(Collectors.joining(", ")));
-            System.out.println("----------------------------------------");
+            System.out.println("---------------------------------------------");
         });
     }
 
@@ -150,8 +179,8 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
             return;
         }
 
-        System.out.println("------------LIBROS REGISTRADOS----------");
-        System.out.println("----------------------------------------");
+        System.out.println("--------------LIBROS REGISTRADOS-------------");
+
 
         libros.stream().forEach(libro -> {
             System.out.println("-------------------LIBRO---------------------");
@@ -160,7 +189,7 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
                     (libro.getAutor() != null ? libro.getAutor().getNombre() : "Desconocido"));
             System.out.println("IDIOMA: " + libro.getIdioma());
             System.out.println("NÚMERO DE DESCARGAS: " + libro.getNumeroDeDescargas());
-            System.out.println("----------------------------------------");
+            System.out.println("---------------------------------------------");
         });
     }
 
@@ -169,7 +198,6 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
 
         var nombreLibro = teclado.nextLine();
         var json = consumoApi.obtenerDatos(URL_BASE + "?search="+ nombreLibro.replace(" ", "+"));
-        System.out.println(json);
         DatosResultado datos = conversor.obtenerDatos(json, DatosResultado.class);
         Optional<DatosLibro> libroBuscado = datos.resultados().stream()
                 .filter(Libro -> Libro.titulo().toUpperCase().contains(nombreLibro.toUpperCase()))
@@ -196,8 +224,7 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
             }
             try {
                 libroRepository.save(libro);
-                System.out.println("------------------LIBRO----------------");
-                System.out.println("----------------------------------------");
+                System.out.println("------------------LIBRO-----------------");
                 System.out.println("TÍTULO: " + libro.getTitulo());
                 System.out.println("AUTOR: " +
                         (libro.getAutor() != null ? libro.getAutor().getNombre() : "Desconocido"));
