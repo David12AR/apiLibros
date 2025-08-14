@@ -194,7 +194,7 @@ public Principal(LibroRepository libroRepository, AutorRepository autorRepositor
     }
 
     private DatosLibro getDatosLibro() {
-        System.out.println("Por favor escriba el nombre de la serie que desea buscar:");
+        System.out.println("Por favor escriba el nombre del libro que desea buscar:");
 
         var nombreLibro = teclado.nextLine();
         var json = consumoApi.obtenerDatos(URL_BASE + "?search="+ nombreLibro.replace(" ", "+"));
